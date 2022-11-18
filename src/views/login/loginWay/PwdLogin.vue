@@ -42,9 +42,8 @@
           />
         </div>
       </el-form-item>
-
       <el-form-item>
-        <el-button type="danger" @click="onSubmit">登录</el-button>
+        <el-button type="danger" @click="handleSubmitClick">登录</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -54,7 +53,11 @@
   import { ref, reactive, onMounted } from "vue";
   import { User, Lock } from "@element-plus/icons-vue";
   import { ElMessage } from "element-plus";
-  import loginDataUtils from "../../../utils/loginData.js";
+  import loginDataUtils from "@/utils/loginData.js";
+  import { getLogin, getMenuList } from "@/service/getLogin.js";
+  import router from "@/router/index.js";
+  import { loginRules } from "../config/rules.js";
+  import { useLoginStore } from "@/store/loginData";
 
   const loginForm = ref(null);
   const loginFormData = ref({
@@ -63,49 +66,43 @@
     remeberUserName: false,
     remeberPassword: false,
   });
-  // 定义表单验证规则
-  const rules = ref({
-    username: [
-      {
-        required: true,
-        message: "用户名未填写",
-        trigger: "blur",
-      },
-    ],
-    password: [
-      {
-        required: true,
-        message: "密码未填写",
-        trigger: "blur",
-      },
-      { min: 4, max: 8, message: "密码的长度长度过短", trigger: "blur" },
-    ],
-  });
+  const rules = ref(loginRules);
+  const loginStore = useLoginStore();
+
   // 生命周期中的一些事件处理
   onMounted(() => {
     loginFormData.value.username = loginDataUtils.getLoginData("username");
     loginFormData.value.password = loginDataUtils.getLoginData("password");
   });
+
   // 表单提交事件
-  const onSubmit = () => {
+  const handleSubmitClick = () => {
     loginForm.value.validate((valid) => {
-      if (valid) {
-        // 表单校验成功，调用登录接口
-        if (loginFormData.value.remeberUserName) {
-          loginDataUtils.savaLoginData(
-            "username",
-            loginFormData.value.username
-          );
-        }
-        if (loginFormData.value.remeberPassword) {
-          loginDataUtils.savaLoginData(
-            "password",
-            loginFormData.value.password
-          );
-        }
-      } else {
-        return;
+      if (!valid) return;
+      // 表单校验成功，调用登录接口
+      if (loginFormData.value.remeberUserName) {
+        loginDataUtils.setLoginData("username", loginFormData.value.username);
       }
+      if (loginFormData.value.remeberPassword) {
+        loginDataUtils.setLoginData("password", loginFormData.value.password);
+      }
+      // 调用登录接口，跳转到主页
+      getLogin({
+        name: loginFormData.value.username,
+        password: loginFormData.value.password,
+      })
+        .then((res) => {
+          if (res.data.code == 0) {
+            const { id, token, name } = res.data.data;
+            loginDataUtils.setLoginData("token", token);
+            loginStore.getTokenAction(token);
+            loginStore.getMenuAction(id);
+            router.push("/main");
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     });
   };
 </script>

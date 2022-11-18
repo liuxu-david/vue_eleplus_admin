@@ -43,7 +43,8 @@
   import { ref, reactive, onMounted, onUnmounted } from "vue";
   import { User, Lock } from "@element-plus/icons-vue";
   import { ElMessage } from "element-plus";
-  import loginDataUtils from "../../../utils/loginData.js";
+  import loginDataUtils from "@/utils/loginData.js";
+  import { phoneRules } from "../config/phonerules";
 
   const loginForm = ref(null);
   const loginFormData = ref({
@@ -56,35 +57,13 @@
   const timerCount = ref(10);
   let timer = null;
   // 定义表单验证规则
-  const rules = ref({
-    telephone: [
-      {
-        required: true,
-        message: "请填写手机号",
-        trigger: "blur",
-      },
-      {
-        min: 11,
-        max: 11,
-        message: "请填写正确的中国大陆手机号",
-        trigger: "blur",
-      },
-    ],
-    vcode: [
-      {
-        required: true,
-        message: "填写验证码",
-        trigger: "blur",
-      },
-      { min: 6, max: 6, message: "验证码格式不对", trigger: "blur" },
-    ],
-  });
+  const rules = ref(phoneRules);
+
   // 获取验证码事件
   const getVcode = () => {
     isDisabled.value = true;
     timer && clearInterval(timer);
     timer = setInterval(() => {
-      // debugger;
       timerCount.value--;
       btntext.value = timerCount;
       if (timerCount.value === 0) {

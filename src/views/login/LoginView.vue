@@ -42,9 +42,9 @@
 
 <script setup>
   import { ref } from "vue";
-  import PwdLogin from "./components/PwdLogin.vue";
-  import VcodeLogin from "./components/VcodeLogin.vue";
-  import ScodeLogin from "./components/ScodeLogin.vue";
+  import PwdLogin from "@/views/login/loginWay/PwdLogin.vue";
+  import VcodeLogin from "@/views/login/loginWay/VcodeLogin.vue";
+  import ScodeLogin from "@/views/login/loginWay/ScodeLogin.vue";
 
   // 定义登录页面的头像图片
   const url = new URL("../../assets/logo.png", import.meta.url).href;
@@ -83,13 +83,13 @@
       }
       .tab-bar {
         display: flex;
-        height: 6vh;
+        height: 35px;
         background-color: rgba(0, 0, 0, 0.3);
         margin: 10px 0;
         border-radius: 5px;
         .tab-item {
           flex: 1;
-          line-height: 6vh;
+          line-height: 35px;
           color: #fff;
           user-select: none;
           cursor: pointer;
